@@ -1426,6 +1426,7 @@ void World::LoadConfigSettingsFromFile(bool reload)
 
     setConfig(CONFIG_BOOL_ITEM_LOG_RESTORE_QUEST_ITEMS, "ItemRestoreLog.QuestItems", false);
     setConfig(CONFIG_BOOL_LOAD_LOCALES, "LoadLocales", true);
+    setConfig(CONFIG_BOOL_LOAD_SPELLS_FROM_SQL, "LoadSpellsFromSql", false);
 
     setConfig(CONFIG_BOOL_ENABLE_FACTION_BALANCE, "FactionBalance.Enable", false);
     setConfig(CONFIG_BOOL_BLOCK_ALL_HANZI, "Hanzi.BlockAll", false);
@@ -1892,6 +1893,19 @@ void LoadPlayerEggLoot();
 
     CheckEggExploit();
 
+    if (getConfig(CONFIG_BOOL_LOAD_SPELLS_FROM_SQL))
+    {
+        sLog.outString("Loading spells from `spell_template`...");
+        sSpellMgr.LoadSpellsFromSpellTemplate();
+    }
+    else
+    {
+        sLog.outString("Loading Spell.dbc...");
+        LoadSpellDBCStore(m_dataPath);
+        sLog.outString("Loading spells...");
+        sSpellMgr.LoadSpells();
+    }
+
     ///- Loads existing IDs in the database.
     sLog.outString("Loading existing IDs in the database...");
     sObjectMgr.LoadAllIdentifiers();
@@ -1915,8 +1929,6 @@ void LoadPlayerEggLoot();
 
     sLog.outString("Loading chat channels...");
     sObjectMgr.LoadChatChannels();
-    sLog.outString("Loading spells...");
-    sSpellMgr.LoadSpells();
     sLog.outString("Loading factions...");
     sObjectMgr.LoadFactions();
     sLog.outString("Loading sounds...");

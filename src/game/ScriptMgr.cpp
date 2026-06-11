@@ -1406,18 +1406,6 @@ void ScriptMgr::LoadSpellScripts()
 {
     LoadScripts(sSpellScripts, "spell_scripts");
 
-    std::set<uint32> scriptSpells;
-    std::unique_ptr<QueryResult> result(WorldDatabase.Query("SELECT `entry` FROM `spell_template` WHERE 77 IN (`effect1`, `effect2`, `effect3`)"));
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 spellId = fields[0].GetUInt32();
-            scriptSpells.insert(spellId);
-        } while (result->NextRow());
-    }
-
     // check ids
     for (const auto& itr : sSpellScripts)
     {
@@ -1444,9 +1432,6 @@ void ScriptMgr::LoadSpellScripts()
                 break;
             }
         }
-
-        if (scriptSpells.find(itr.first) != scriptSpells.cend())
-            found = true;
 
         if (!found)
             sLog.outErrorDb("Table `spell_scripts` has unsupported spell (Id: %u) without SPELL_EFFECT_SCRIPT_EFFECT (%u) spell effect", itr.first, SPELL_EFFECT_SCRIPT_EFFECT);
@@ -2460,23 +2445,6 @@ void ScriptMgr::CollectPossibleEventIds(std::set<uint32>& eventIds)
             if (data11)
                 eventIds.insert(data11);
         } while (result->NextRow());
-    }
-
-    // Load all possible script entries from spells.
-    for (uint32 i = 1; i < 4; ++i)
-    {
-        result.reset(WorldDatabase.PQuery("SELECT `effectMiscValue%u` FROM `spell_template` WHERE `effect%u`=61", i, i));
-
-        if (result)
-        {
-            do
-            {
-                fields = result->Fetch();
-                uint32 eventId = fields[0].GetUInt32();
-                if (eventId)
-                    eventIds.insert(eventId);
-            } while (result->NextRow());
-        }
     }
 
     // Load all possible script entries from spells.
